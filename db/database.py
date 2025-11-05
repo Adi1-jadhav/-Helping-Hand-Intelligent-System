@@ -1,12 +1,20 @@
 import mysql.connector
 
 # 🔌 Establish connection
+# def get_db_connection():
+#     return mysql.connector.connect(
+#         host='localhost',
+#         user='root',
+#         password='password',  # Replace with your actual DB password
+#         database='donation'
+#     )
 def get_db_connection():
     return mysql.connector.connect(
-        host='localhost',
-        user='root',
-        password='password',  # Replace with your actual DB password
-        database='donation'
+        host="yamanote.proxy.rlwy.net",
+        port=12682,
+        user="root",
+        password="VzRIoNlmOHRYWYEBoWEzVoRqceYdojoQ",
+        database="donation"
     )
 
 # 🧠 Execute query (SELECT / INSERT / UPDATE / DELETE)
