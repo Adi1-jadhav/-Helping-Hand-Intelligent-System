@@ -43,12 +43,45 @@ def get_category_stats():
     }
 
 # 💾 Save Donation
+# def save_donation(user_id, title, description, location, quantity,
+#                   predicted_category, image_filename,
+#                   pickup_required=False, pickup_time=None, pickup_status=None):
+#     try:
+#         conn = mysql.connector.connect(**db_config)
+#         cur = conn.cursor()
+#         cur.execute("""
+#             INSERT INTO donations (
+#                 user_id, title, description, location, quantity,
+#                 predicted_category, image_filename,
+#                 pickup_required, pickup_time, pickup_status
+#             ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+#         """, (
+#             user_id, title, description, location, quantity,
+#             predicted_category, image_filename,
+#             pickup_required, pickup_time, pickup_status
+#         ))
+#         conn.commit()
+#         print("✅ Donation saved.")
+#     except Exception as e:
+#         print("❌ Donation insert failed:", e)
+#     finally:
+#         cur.close()
+#         conn.close()
 def save_donation(user_id, title, description, location, quantity,
                   predicted_category, image_filename,
                   pickup_required=False, pickup_time=None, pickup_status=None):
     try:
         conn = mysql.connector.connect(**db_config)
         cur = conn.cursor()
+
+        # Ensure safe defaults
+        if pickup_status is None:
+            pickup_status = 'pending'
+        if predicted_category is None:
+            predicted_category = ''
+        if image_filename is None:
+            image_filename = ''
+
         cur.execute("""
             INSERT INTO donations (
                 user_id, title, description, location, quantity,
@@ -60,6 +93,7 @@ def save_donation(user_id, title, description, location, quantity,
             predicted_category, image_filename,
             pickup_required, pickup_time, pickup_status
         ))
+
         conn.commit()
         print("✅ Donation saved.")
     except Exception as e:
@@ -67,6 +101,7 @@ def save_donation(user_id, title, description, location, quantity,
     finally:
         cur.close()
         conn.close()
+
 
 # 🛠 Update Pickup Status
 def update_pickup_status(donation_id, status):
