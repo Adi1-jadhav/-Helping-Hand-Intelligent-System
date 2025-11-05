@@ -7,7 +7,10 @@ def get_db_connection():
         user='root',
         password='password',
         database='donation',  # ✅ use your actual DB name
-        port=18801
+        port=18801,
+        connection_timeout=10,
+        use_pure=True
+
     )
 
 
