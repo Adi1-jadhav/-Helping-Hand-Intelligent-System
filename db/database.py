@@ -3,11 +3,13 @@ import mysql.connector
 # 🔌 Establish connection
 def get_db_connection():
     return mysql.connector.connect(
-        host='localhost',
+        host='nozomi.proxy.rlwy.net',
         user='root',
-        password='password',  # Replace with your actual DB password
-        database='donation'
+        password='password',
+        database='donation',  # ✅ use your actual DB name
+        port=18801
     )
+
 
 # 🧠 Execute query (SELECT / INSERT / UPDATE / DELETE)
 def execute_query(query, params=None):
