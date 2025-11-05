@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>NGO Dashboard | DonateWise</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+
+     .filter-group {
+         display: flex;
+         flex-wrap: wrap;
+         gap: 1rem;
+         justify-content: center;
+         margin-bottom: 1.5rem;
+     }
+
+     .filter-group select {
+         min-width: 200px;
+         max-width: 300px;
+         flex: 1;
+     }
+
+     @media (min-width: 768px) {
+         .filter-group select {
+             width: auto;
+         }
+     }
+
+     .ngo-card .details { display: none; }
+     .ngo-card.active .details { display: block; }
+
+     .badge.status-badge { font-size: 0.8rem; }
+
+     .card.claimed {
+         border-left: 6px solid #198754;
+         background-color: #f8fff8;
+     }
+
+
+    </style>
+</head>
+<body class="bg-light">
+
+<!-- 🌐 Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">DonateWise NGO</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('main.home') }}">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('main.donate') }}">Donate</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('main.feedback') }}">Feedback</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('main.history') }}">History</a></li>
+                {% if session.get('ngo_id') %}
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container py-4">
+    <h2 class="text-center mb-4">📦 NGO Dashboard</h2>
+    {% if ngo.status != 'Approved' %}
+    <div class="alert alert-warning text-center">
+        🔒 Your NGO account is <strong>not yet verified</strong> by admin.<br>
+        You’ll be able to claim donations once approved.
+    </div>
+    {% endif %}
+
+    <!-- ✅ Flash Message -->
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="alert alert-success text-center">{{ messages[0]|safe }}</div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- 🔍 Filters -->
+    <div class="d-flex gap-3 flex-wrap mb-4 filter-group">
+        <select id="filter-category" class="form-select" onchange="applyFilters()">
+            <option value="all">Category: All</option>
+            {% for category, count in stats.items() %}
+            <option value="{{ category }}">{{ category }}</option>
+            {% endfor %}
+        </select>
+        <select id="filter-status" class="form-select" onchange="applyFilters()">
+            <option value="all">Pickup Status: All</option>
+            <option value="Pending">Pending</option>
+            <option value="Approved">Approved</option>
+            <option value="Declined">Declined</option>
+        </select>
+        <select id="filter-rec" class="form-select" onchange="applyFilters()">
+            <option value="all">Recommendation: All</option>
+            <option value="true">✅ Recommended</option>
+            <option value="false">❌ Not Recommended</option>
+        </select>
+    </div>
+
+    <p>Total donations: {{ unclaimed|length + claimed|length }}</p>
+
+    <!-- 🧩 Donation Cards -->
+    <div id="donation-container">
+        {% for d in unclaimed + claimed %}
+        <div class="card ngo-card mb-3 {% if d.claimed_by %}claimed{% endif %}"
+             data-cat="{{ d.predicted_category }}"
+             data-status="{{ d.pickup_status or 'Pending' }}"
+             data-rec="{{ d.pickup_recommended }}">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title">
+                        {{ d.title }}
+                        <span class="badge bg-info">{{ d.predicted_category }}</span>
+                        {% if d.claimed_by %}<span class="badge bg-success ms-2 status-badge">✅ Claimed</span>{% endif %}
+                    </h5>
+                    <span class="expand-icon" onclick="toggleCard(this)">➕</span>
+                </div>
+                <p><strong>Donor:</strong> {{ d.user_name }} | <strong>Location:</strong> {{ d.location }}</p>
+                <p><strong>Quantity:</strong> {{ d.quantity }} | <strong>Date:</strong> {{ d.created_at }}</p>
+                <p>
+                    {% if d.pickup_required %}<span class="badge bg-success">Pickup Required</span>{% else %}<span class="badge bg-secondary">No Pickup</span>{% endif %}
+                    {% if d.pickup_status %}<span class="badge bg-warning text-dark">{{ d.pickup_status }}</span>{% else %}<span class="badge bg-light text-dark">Pending</span>{% endif %}
+                    {% if d.pickup_recommended %}<span class="badge bg-success">✅ Recommended</span>{% else %}<span class="badge bg-danger">❌ Not Recommended</span>{% endif %}
+                </p>
+
+                <!-- 🔽 Expandable Details -->
+                <div class="details mt-3 border-top pt-3">
+                    {% if d.pickup_time %}
+                    <p><strong>Preferred Pickup Time:</strong> {{ d.pickup_time }}</p>
+                    {% endif %}
+                    {% if d.image_filename %}
+                    <div class="mb-2">
+                        <strong>Image:</strong><br>
+                        <img src="{{ url_for('static', filename='uploads/' ~ d.image_filename) }}" class="img-fluid rounded" style="max-height:200px;">
+                    </div>
+                    {% endif %}
+                    <div class="mb-2">
+                        <strong>Map:</strong><br>
+                        <iframe width="100%" height="150" loading="lazy" style="border:0" src="https://www.google.com/maps?q={{ d.location }}&output=embed" allowfullscreen></iframe>
+                    </div>
+
+                    <!-- 📥 Claim Interaction -->
+                    {% if not d.claimed_by %}
+                    <button class="btn btn-outline-primary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#claimModal{{ d.id }}">📥 Claim This Donation</button>
+
+                    <!-- 🧾 Claim Modal -->
+                    <div class="modal fade" id="claimModal{{ d.id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <form method="POST" action="{{ url_for('main.claim_donation') }}">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Claim Donation: {{ d.title }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <input type="hidden" name="donation_id" value="{{ d.id }}">
+                                        <div class="mb-3">
+                                            <label for="pickup_time{{ d.id }}" class="form-label">Pickup Time</label>
+                                            <input type="datetime-local" name="pickup_time" id="pickup_time{{ d.id }}" class="form-control" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="pickup_notes{{ d.id }}" class="form-label">Pickup Notes (optional)</label>
+                                            <textarea name="pickup_notes" id="pickup_notes{{ d.id }}" class="form-control" rows="2" placeholder="Any special instructions?"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-success w-100">Confirm Claim</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="text-success"><strong>Claimed by:</strong> Your NGO | <strong>Pickup Time:</strong> {{ d.pickup_time }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- 🧠 Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function toggleCard(el) {
+        el.innerText = el.innerText === '➕' ? '➖' : '➕';
+        el.closest('.ngo-card').classList.toggle('active');
+    }
+
+    function applyFilters() {
+        const cat = document.getElementById('filter-category').value;
+        const status = document.getElementById('filter-status').value;
+        const rec = document.getElementById('filter-rec').value;
+
+        document.querySelectorAll('.ngo-card').forEach(card => {
+            const cardCat = card.getAttribute('data-cat')?.trim();
+            const cardStatus = card.getAttribute('data-status')?.trim();
+            const cardRecRaw = card.getAttribute('data-rec');
+            const cardRec = (cardRecRaw === 'True' || cardRecRaw === 'true');
+
+            const matchCat = (cat === 'all') || (cardCat === cat);
+            const matchStatus = (status === 'all') || (cardStatus === status);
+            const matchRec = (rec === 'all') || ((rec === 'true') === cardRec);
+
+            card.style.display = (matchCat && matchStatus && matchRec) ? 'block' : 'none';
+        });
+    }
+
+    window.addEventListener('DOMContentLoaded', applyFilters);
+</script>
+
+</body>
+</html>

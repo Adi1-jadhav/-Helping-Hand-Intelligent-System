@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Welcome to DonateWise</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="bg-light">
+
+<!-- 🌐 Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="#">DonateWise</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('main.donate') }}">Donate</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('main.feedback') }}">Feedback</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('main.history') }}">History</a></li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- 🏠 Welcome Banner -->
+<section class="text-center py-5 bg-white">
+    <div class="container">
+        <h1 class="display-5 mb-3">Welcome to DonateWise</h1>
+        <p class="lead mb-4">A smarter way to connect unused items with those who need them — powered by AI, built for impact.</p>
+        <a href="{{ url_for('main.donate') }}" class="btn btn-success btn-lg">Start Donating</a>
+    </div>
+</section>
+
+<!-- 🚀 System Overview -->
+<section class="py-5">
+    <div class="container">
+        <h3 class="text-center mb-4">How DonateWise Works</h3>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">👐 Donors</h5>
+                        <p>Upload items, get smart predictions, and request pickup support. Donate in seconds!</p>
+                        <a href="{{ url_for('main.donate') }}" class="btn btn-outline-primary btn-sm">Go to Donate</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">🛠️ Admins</h5>
+                        <p>Review submissions, approve pickups, and track donation flow with trust signals.</p>
+                        <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-success btn-sm">Go to Dashboard</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">💬 Feedback</h5>
+                        <p>Tell us what works and what doesn’t. Your voice shapes how DonateWise evolves.</p>
+                        <a href="{{ url_for('main.feedback') }}" class="btn btn-outline-secondary btn-sm">Give Feedback</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 📣 CTA Footer -->
+<section class="py-5 bg-white">
+    <div class="container text-center">
+        <h4 class="mb-3">Ready to make a difference?</h4>
+        <a href="{{ url_for('main.donate') }}" class="btn btn-primary btn-lg">Donate an Item Now</a>
+    </div>
+</section>
+
+</body>
+</html>
