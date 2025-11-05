@@ -98,8 +98,11 @@ def save_donation(user_id, title, description, location, quantity,
         print("✅ Donation saved.")
     except Exception as e:
         print("❌ Donation insert failed:", e)
+
     finally:
+     if cur:
         cur.close()
+     if conn:
         conn.close()
 
 
