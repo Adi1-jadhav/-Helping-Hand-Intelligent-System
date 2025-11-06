@@ -45,7 +45,7 @@ It uses AI to auto-categorize donations, recommends pickups, and ensures transpa
 
 1. **Clone the repo**
    ```bash
-   git clone https://github.com/<your-username>/donatewise-ngotracker.git
+   git clone https://github.com/Adi1-jadhav/donatewise-ngotracker.git
    cd donatewise-ngotracker
 
 2. Install Dependencies   
