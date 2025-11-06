@@ -1,5 +1,7 @@
 # 🧠 DonateWise – AI-Powered NGO Donation Tracker
 
+https://helping-hand-intelligent-system-mvtv.onrender.com
+
 **DonateWise** is a full-stack donation management system that connects donors with verified NGOs. 
 It uses AI to auto-categorize donations, recommends pickups, and ensures transparency in charitable logistics.
 
